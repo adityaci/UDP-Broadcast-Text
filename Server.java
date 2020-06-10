@@ -3,6 +3,8 @@ package udpbroadcast;
 import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -33,7 +35,7 @@ public class Server {
     private JTextArea textBox;
     private JFrame window;
     private JTextField inputPort, inputText;
-    private JButton send, stop, start;
+    private JButton send, start;
     private ArrayList<Server.clientThread> clients;
     
     public static void main(String[] args) {
@@ -65,6 +67,15 @@ public class Server {
                         
                         InetAddress clientAddress = request.getAddress();
                         int clientPort = request.getPort();
+                        
+                        int tmp = 0;
+                        for( int i = 0; i < clients.size(); i++ ){
+                            if( clients.get(i).getUsername().equals( requestValue )){
+                                ++tmp;
+                                requestValue = requestValue + tmp;
+                            }
+                        }
+                        
                         clientThread ct = new clientThread( requestValue, clientAddress, clientPort );
                         clients.add( ct );
 
@@ -149,7 +160,7 @@ public class Server {
             BorderFactory.createEmptyBorder( 0, 5, 0, 5 )));
         
         start = new JButton("Start");
-        start.setBounds( 345, 11, 65, 20 );
+        start.setBounds( 345, 11, 135, 20 );
         start.addMouseListener( new java.awt.event.MouseAdapter() {
             @Override
             public void mousePressed( java.awt.event.MouseEvent evt ) {
@@ -162,28 +173,12 @@ public class Server {
                 }else{
                     port = Integer.parseInt( inputPort.getText() );
                     start.setEnabled( false );
-                    stop.setEnabled( true );
                     inputPort.setEditable( false );
                     inputText.setEditable( true );
                     send.setEnabled( true );
                     thread = new startServer();
                     thread.start(); 
                 }
-            }
-        });
-        
-        stop = new JButton("Stop");
-        stop.setBounds( 417, 11, 65, 20 );
-        stop.setEnabled( false );
-        stop.addMouseListener( new java.awt.event.MouseAdapter() {
-            @Override
-            public void mousePressed( java.awt.event.MouseEvent evt ) {
-                thread.stopListen();
-                stop.setEnabled( false );
-                start.setEnabled( true );
-                inputPort.setEditable( true );
-                inputText.setEditable( false );
-                send.setEnabled( false );
             }
         });
         
@@ -231,16 +226,23 @@ public class Server {
             }
         });
         
+        window.addWindowListener(new WindowAdapter(){
+            public void windowClosing(WindowEvent e){
+                for( int i = 0; i < clients.size(); i++ ){
+                    clients.get(i).sendText( "Server Disconnected." );
+                }
+                System.exit(0);
+            }
+        });
+        
         window.setSize( 500, 600 );
         window.setLocationRelativeTo(null);
         window.setResizable(false);
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setLayout(null);
         window.add( ipText );
         window.add( portText );
         window.add( inputPort );
         window.add( start );
-        window.add( stop );
         window.add( skroll );
         window.add( inputText );
         window.add( send );

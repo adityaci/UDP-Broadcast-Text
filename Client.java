@@ -71,7 +71,15 @@ public class Client {
                         textBox.setText( respondText.split("~")[0] + 
                                 "\n--------------------------------------------------------------------------------------------------------------\n");
                         user = respondText.split("~")[1];
+                        userName.setText( user );
+                        window.setTitle( "Client Broadcast | Aktif sebagai : " + user );
                         socket.setSoTimeout(0);
+                    }else if( respondText.equals("Server Disconnected.") ){
+                        textBox.setText( textBox.getText().toString() + "\nKoneksi ke Server Terputus \n" + 
+                                "\n--------------------------------------------------------------------------------------------------------------\n");
+                        socket.close();
+                        user = "";
+                        kontrolElement( true );
                     }else{
                         textBox.setText( textBox.getText().toString() + "Broadcast from server : \n\n" + respondText + 
                                 "\n--------------------------------------------------------------------------------------------------------------\n");
@@ -80,11 +88,15 @@ public class Client {
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null, "Tidak dapat terhubung ke server, pastikan IP Address dan Port sudah benar.");
                 socket.close();
-                inputPort.setEditable( true );
-                ipAddress.setEditable( true );
-                userName.setEditable( true );
-                connect.setEnabled( true );
+                kontrolElement( true );
             } 
+        }
+        
+        private void kontrolElement( Boolean status ){
+            inputPort.setEditable( status );
+            ipAddress.setEditable( status );
+            userName.setEditable( status );
+            connect.setEnabled( status );
         }
         
         public void sendRequest( String text ){
@@ -150,13 +162,10 @@ public class Client {
                     JOptionPane.showMessageDialog(null, "Username harus diisi.");
                     userName.requestFocus();
                 }else{
-                    inputPort.setEditable( false );
-                    ipAddress.setEditable( false );
-                    userName.setEditable( false );
-                    connect.setEnabled( false );
                     try {
                         InetAddress hostAddress = InetAddress.getByName( ipAddress.getText().toString() );
                         tls = new listenServer( hostAddress, Integer.parseInt( inputPort.getText().toString() ) );
+                        tls.kontrolElement( false );
                         tls.start();
                     } catch (UnknownHostException ex) {
                         Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
