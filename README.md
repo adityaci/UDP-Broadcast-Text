@@ -1,5 +1,5 @@
-# UDP-Broadcast-Text-Using-Java
-Broadcast Text Application (Server + Client) Java
+# UDP Broadcast Text Using Java Multi Thread
+Broadcast Text Application (Server + Client) Multi Thread Java
 <br><br>
 <b>- Server Interface :</b>
 <br>
